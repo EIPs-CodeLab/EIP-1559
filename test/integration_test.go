@@ -13,7 +13,8 @@ import (
 func TestFullBlockProcessing(t *testing.T) {
 	// Initialize state
 	state := types.NewState()
-	state.SetAccount("0xAlice", types.NewAccount("0xAlice", 10_000_000_000_000))
+	// Give Alice enough balance to cover upfront max-fee * gas + value for multiple transactions
+	state.SetAccount("0xAlice", types.NewAccount("0xAlice", 1_000_000_000_000_000))
 	state.SetAccount("0xBob", types.NewAccount("0xBob", 0))
 	state.SetAccount("0xMiner", types.NewAccount("0xMiner", 0))
 
@@ -100,7 +101,7 @@ func TestFullBlockProcessing(t *testing.T) {
 		t.Error("expected miner to receive tips")
 	}
 
-	t.Logf("✅ Processed 5 blocks successfully")
+	t.Logf(" Processed 5 blocks successfully")
 	t.Logf("   Total burned: %d wei", totalBurned)
 	t.Logf("   Miner earned: %d wei", minerBalance)
 }
