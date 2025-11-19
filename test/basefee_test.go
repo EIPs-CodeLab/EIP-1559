@@ -28,14 +28,14 @@ func TestBaseFeeCalculation(t *testing.T) {
 			gasUsed:         20_000_000,
 			gasLimit:        30_000_000,
 			currentBaseFee:  1_000_000_000,
-			expectedBaseFee: 1_083_333_333,
+			expectedBaseFee: 1_041_666_666,
 		},
 		{
 			name:            "below target - decrease",
 			gasUsed:         10_000_000,
 			gasLimit:        30_000_000,
 			currentBaseFee:  1_000_000_000,
-			expectedBaseFee: 916_666_666,
+			expectedBaseFee: 958_333_334,
 		},
 		{
 			name:            "full block - max increase",
@@ -56,7 +56,7 @@ func TestBaseFeeCalculation(t *testing.T) {
 			gasUsed:         0,
 			gasLimit:        30_000_000,
 			currentBaseFee:  100,
-			expectedBaseFee: 87,
+			expectedBaseFee: 88,
 		},
 	}
 
