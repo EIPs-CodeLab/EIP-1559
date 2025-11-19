@@ -29,7 +29,8 @@ func ExecuteTransaction(tx *types.Transaction, block *types.Block, state *types.
 	priorityFee := tx.EffectivePriorityFee(block.BaseFee)
 
 	// Deduct upfront cost (gas + value)
-	upfrontGasCost := tx.GasLimit * effectiveGasPrice
+	// Deduct upfront cost (gas + value) based on MAX fee
+	upfrontGasCost := tx.GasLimit * tx.MaxFeePerGas
 	totalCost := upfrontGasCost + tx.Value
 
 	if err := sender.Deduct(totalCost); err != nil {
@@ -42,8 +43,17 @@ func ExecuteTransaction(tx *types.Transaction, block *types.Block, state *types.
 	result.GasUsed = gasUsed
 
 	// Calculate actual costs
-	gasRefund := tx.GasLimit - gasUsed
-	refundAmount := gasRefund * effectiveGasPrice
+	// Calculate actual costs
+	// Refund = (GasLimit * MaxFee) - (GasUsed * EffectiveFee)
+	//        = (GasLimit - GasUsed) * MaxFee + GasUsed * (MaxFee - EffectiveFee)
+	// Simplified: Refund unused gas @ MaxFee + Refund overpayment on used gas
+
+	remainderGas := tx.GasLimit - gasUsed
+	refundAmount := remainderGas * tx.MaxFeePerGas
+
+	// Add refund for the difference between max fee and effective fee for used gas
+	overpaymentPerGas := tx.MaxFeePerGas - effectiveGasPrice
+	refundAmount += gasUsed * overpaymentPerGas
 
 	// Refund unused gas to sender
 	sender.Add(refundAmount)
